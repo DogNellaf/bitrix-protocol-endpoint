@@ -1,38 +1,50 @@
 import os
 import random
 import tempfile
+import subprocess  # Добавляем импорт
 
-from docx2pdf import convert as docx2pdf_convert
 from pdf2image import convert_from_path
 import img2pdf
 
 def convert_word_to_pdf(word_file, output_pdf):
     """
-    Конвертирует Word-документ в PDF, а затем делает PDF немашиночитаемым:
-    1. Сначала генерируется временный PDF с помощью docx2pdf.
-    2. Затем каждая страница PDF конвертируется в PNG (с помощью pdf2image).
-    3. После чего из PNG-изображений формируется единый PDF (с помощью img2pdf).
-    
-    Обратите внимание, что для pdf2image требуется наличие poppler.
+    Конвертирует Word-документ в PDF через LibreOffice.
     """
     with tempfile.TemporaryDirectory() as tmpdirname:
-        temp_pdf = os.path.join(tmpdirname, "temp.pdf")
-        # Конвертируем Word в PDF
-        docx2pdf_convert(word_file, temp_pdf)
-        
-        # Конвертируем PDF-страницы в изображения (PNG)
+        # Конвертируем Word в PDF с помощью LibreOffice
+        try:
+            subprocess.run(
+                [
+                    "libreoffice",
+                    "--headless",
+                    "--convert-to", "pdf",
+                    "--outdir", tmpdirname,
+                    word_file
+                ],
+                check=True,
+                capture_output=True
+            )
+        except subprocess.CalledProcessError as e:
+            raise RuntimeError(f"Ошибка конвертации DOCX в PDF: {e.stderr.decode()}") from e
+
+        # Определяем путь к временному PDF-файлу
+        base_name = os.path.basename(word_file)
+        pdf_name = os.path.splitext(base_name)[0] + ".pdf"
+        temp_pdf = os.path.join(tmpdirname, pdf_name)
+
+        if not os.path.exists(temp_pdf):
+            raise FileNotFoundError(f"Конвертированный PDF не найден: {temp_pdf}")
+
+        # Конвертируем PDF в изображения и собираем обратно в PDF
         images = convert_from_path(temp_pdf, fmt="png")
         png_files = []
         for idx, image in enumerate(images):
             png_path = os.path.join(tmpdirname, f"page_{idx}.png")
             image.save(png_path, "PNG")
             png_files.append(png_path)
-        
-        # Собираем единый PDF из PNG изображений
+
         with open(output_pdf, "wb") as file:
-            file.write(
-                img2pdf.convert(png_files)
-            )
+            file.write(img2pdf.convert(png_files))
 
     return output_pdf
 
