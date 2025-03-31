@@ -46,7 +46,7 @@ def convert_word_to_pdf(word_file, output_pdf):
         if not os.path.exists(temp_pdf):
             raise FileNotFoundError(f"Конвертированный PDF не найден: {temp_pdf}")
 
-        images = convert_from_path(temp_pdf, fmt="png")
+        images = convert_from_path(temp_pdf, fmt="png", poppler_path="/usr/share/poppler")
         png_files = []
         for idx, image in enumerate(images):
             png_path = os.path.join(tmpdirname, f"page_{idx}.png")
