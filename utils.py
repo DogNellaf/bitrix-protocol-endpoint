@@ -18,6 +18,8 @@ def convert_word_to_pdf(word_file, output_pdf):
         env = os.environ.copy()
         # Добавляем пути к библиотекам LibreOffice, если требуется
         env["LD_LIBRARY_PATH"] = "/usr/lib/libreoffice/program:" + env.get("LD_LIBRARY_PATH", "")
+        # Обновляем PATH, чтобы LibreOffice мог найти стандартные утилиты
+        env["PATH"] = "/usr/bin:/bin:" + env.get("PATH", "")
         
         try:
             subprocess.run(
