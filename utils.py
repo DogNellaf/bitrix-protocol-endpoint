@@ -15,7 +15,7 @@ def convert_word_to_pdf(word_file, output_pdf):
         try:
             subprocess.run(
                 [
-                    "libreoffice",
+                    "/usr/bin/libreoffice",
                     "--headless",
                     "--convert-to", "pdf",
                     "--outdir", tmpdirname,
