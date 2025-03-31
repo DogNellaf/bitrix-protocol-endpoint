@@ -24,7 +24,7 @@ def convert_word_to_pdf(word_file, output_pdf):
             #     check=True,
             #     capture_output=True
             # )
-            subprocess.run(["unoconv", "-f", "pdf", "-o", tmpdirname, word_file], check=True)
+            subprocess.run(["/usr/bin/unoconv", "-f", "pdf", "-o", tmpdirname, word_file], check=True)
         except subprocess.CalledProcessError as e:
             raise RuntimeError(f"Ошибка конвертации DOCX в PDF: {e.stderr.decode()}") from e
 
