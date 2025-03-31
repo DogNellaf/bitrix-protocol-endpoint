@@ -49,7 +49,7 @@ def webhook():
         pdf_filename = RESULT_FILENAME + '.pdf'
         convert_word_to_pdf(word_filename, pdf_filename)
         send_equipments_to_bitrix(google_data['Используемое оборудование'])
-        send_documents_to_bitrix(word_filename, pdf_filename)
+        # send_documents_to_bitrix(word_filename, pdf_filename)
 
         return jsonify({
             'status': 'success',
