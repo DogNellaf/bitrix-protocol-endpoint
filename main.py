@@ -51,6 +51,8 @@ def webhook():
         send_equipments_to_bitrix(google_data['Используемое оборудование'])
         # send_documents_to_bitrix(word_filename, pdf_filename)
 
+        app.logger.info("Документы успешно отправлены в Bitrix", payload)
+
         return jsonify({
             'status': 'success',
             'message': 'Документы успешно отправлены в Bitrix',
