@@ -11,24 +11,32 @@ def convert_word_to_pdf(word_file, output_pdf):
     Конвертирует Word-документ в PDF через LibreOffice.
     """
     with tempfile.TemporaryDirectory() as tmpdirname:
-        # Конвертируем Word в PDF с помощью LibreOffice
+        # Убедитесь, что путь к libreoffice корректен для вашей системы
+        libreoffice_path = "/usr/bin/libreoffice"
+        
+        # Передаем переменные окружения, необходимые для работы LibreOffice
+        env = os.environ.copy()
+        # Добавляем пути к библиотекам LibreOffice, если требуется
+        env["LD_LIBRARY_PATH"] = "/usr/lib/libreoffice/program:" + env.get("LD_LIBRARY_PATH", "")
+        
         try:
-            # subprocess.run(
-            #     [
-            #         "/usr/bin/libreoffice",
-            #         "--headless",
-            #         "--convert-to", "pdf",
-            #         "--outdir", tmpdirname,
-            #         word_file
-            #     ],
-            #     check=True,
-            #     capture_output=True
-            # )
-            subprocess.run(["/usr/bin/unoconv", "-f", "pdf", "-o", tmpdirname, word_file], check=True)
+            subprocess.run(
+                [
+                    libreoffice_path,
+                    "--headless",
+                    "--convert-to", "pdf",
+                    "--outdir", tmpdirname,
+                    word_file
+                ],
+                check=True,
+                capture_output=True,
+                env=env  # Передаем обновленные переменные окружения
+            )
         except subprocess.CalledProcessError as e:
-            raise RuntimeError(f"Ошибка конвертации DOCX в PDF: {e.stderr.decode()}") from e
+            error_msg = e.stderr.decode() if e.stderr else "Неизвестная ошибка"
+            raise RuntimeError(f"Ошибка конвертации DOCX в PDF: {error_msg}") from e
 
-        # Определяем путь к временному PDF-файлу
+        # Остальная часть функции остается без изменений
         base_name = os.path.basename(word_file)
         pdf_name = os.path.splitext(base_name)[0] + ".pdf"
         temp_pdf = os.path.join(tmpdirname, pdf_name)
@@ -36,7 +44,6 @@ def convert_word_to_pdf(word_file, output_pdf):
         if not os.path.exists(temp_pdf):
             raise FileNotFoundError(f"Конвертированный PDF не найден: {temp_pdf}")
 
-        # Конвертируем PDF в изображения и собираем обратно в PDF
         images = convert_from_path(temp_pdf, fmt="png")
         png_files = []
         for idx, image in enumerate(images):
