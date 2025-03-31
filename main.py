@@ -53,6 +53,7 @@ def webhook():
     try:
         # Получение данных от Битрикс24
         payload = request.json
+        print(payload)
 
         # конвертируем полученный payload в карту сопоставления шаблону
         bitrix_data = convert_payload_to_map(payload)
