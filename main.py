@@ -83,7 +83,7 @@ def webhook():
         send_equipments_to_bitrix(google_data['Используемое оборудование'])
 
         # Посылаем документы в битрикс
-        # send_documents_to_bitrix(word_filename, pdf_filename)
+        send_documents_to_bitrix(word_filename, pdf_filename)
 
         # Возврат результата (в реальной интеграции необходимо загрузить файлы в поля сделки Битрикс24)
         return jsonify(
