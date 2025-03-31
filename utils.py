@@ -13,17 +13,18 @@ def convert_word_to_pdf(word_file, output_pdf):
     with tempfile.TemporaryDirectory() as tmpdirname:
         # Конвертируем Word в PDF с помощью LibreOffice
         try:
-            subprocess.run(
-                [
-                    "/usr/bin/libreoffice",
-                    "--headless",
-                    "--convert-to", "pdf",
-                    "--outdir", tmpdirname,
-                    word_file
-                ],
-                check=True,
-                capture_output=True
-            )
+            # subprocess.run(
+            #     [
+            #         "/usr/bin/libreoffice",
+            #         "--headless",
+            #         "--convert-to", "pdf",
+            #         "--outdir", tmpdirname,
+            #         word_file
+            #     ],
+            #     check=True,
+            #     capture_output=True
+            # )
+            subprocess.run(["unoconv", "-f", "pdf", "-o", tmpdirname, word_file], check=True)
         except subprocess.CalledProcessError as e:
             raise RuntimeError(f"Ошибка конвертации DOCX в PDF: {e.stderr.decode()}") from e
 
