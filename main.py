@@ -37,10 +37,10 @@ def send_documents_to_bitrix(word_filename, pdf_filename):
             'doc_pdf': (pdf_filename, pdf_file, 'application/pdf')
         }
         # Дополнительные данные можно передать через параметр data (например, ID сделки)
-        data = {
-            # 'deal_id': '12345',  # Пример передачи идентификатора сделки
-        }
-        response = requests.post(BITRIX_DOCUMENT_ENDPOINT, data=data, files=files)
+        # data = {
+        #     # 'deal_id': '12345',  # Пример передачи идентификатора сделки
+        # }
+        response = requests.post(BITRIX_DOCUMENT_ENDPOINT, files=files)
         if response.status_code != 200:
             raise Exception("Ошибка при отправке документов в Битрикс: " + response.text)
         return response.json()
