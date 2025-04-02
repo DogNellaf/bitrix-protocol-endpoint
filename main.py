@@ -44,8 +44,9 @@ def send_documents_to_bitrix(order_id, word_filename, pdf_filename):
 @app.route('/protocol/create', methods=['POST'])
 def webhook():
     try:
-        body = request.data.decode('iso-8859-1')
-        app.logger.info("Получено тело запроса: " + body)
+        app.logger.info("Headers: %s", request.headers)
+        app.logger.info("Form data: %s", request.form)
+        app.logger.info("Raw data: %s", request.data.decode('utf8'))
         payload = request.json
         app.logger.info("Получен payload: " + payload)
 
