@@ -5,4 +5,4 @@ TEMPLATE_FILENAME = "template.docx"
 RESULT_FILENAME = "protocol"
 
 # Точка доступа для отправки документов в результате
-BITRIX_DOCUMENT_ENDPOINT = "https://b24-92ye6g.bitrix24.ru/rest/1/1yfml3m2yw95p0wi/profile.json"
+BITRIX_DOCUMENT_ENDPOINT = "https://b24-92ye6g.bitrix24.ru/rest/1/1yfml3m2yw95p0wi/crm.item.update"

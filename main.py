@@ -1,5 +1,6 @@
 import logging
 import requests
+import json
 from flask import Flask, request, jsonify
 
 from utils import convert_word_to_pdf, convert_payload_to_map
@@ -18,23 +19,34 @@ def send_equipments_to_bitrix(equipments):
     app.logger.info('Обновление поля "Оборудование" в Битрикс24 значением: %s', equipment_str)
     return True
 
-def send_documents_to_bitrix(word_filename, pdf_filename):
+def send_documents_to_bitrix(order_id, word_filename, pdf_filename):
     with open(word_filename, 'rb') as word_file, open(pdf_filename, 'rb') as pdf_file:
-        files = {
-            'doc_word': (word_filename, word_file, 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'),
-            'doc_pdf': (pdf_filename, pdf_file, 'application/pdf')
+        data = {
+            "id": order_id
         }
-        response = requests.post(BITRIX_DOCUMENT_ENDPOINT, files=files)
-        if response.status_code != 200:
-            raise Exception("Ошибка при отправке документов в Битрикс: " + response.text)
-        return response.json()
+
+        files = {
+            'fields[UFCRM_51742925985182]': (
+                word_filename, 
+                word_file,
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+            ),
+            'fields[UFCRM51742926009772]': (
+                pdf_filename, 
+                open(pdf_filename, 'rb'),
+                'application/pdf'
+            )
+        }
+
+        # Отправка POST-запроса
+        return requests.post(BITRIX_DOCUMENT_ENDPOINT, data=data, files=files)
 
 @app.route('/protocol/create', methods=['POST'])
 def webhook():
     try:
+        app.logger.info("Получено тело запроса: " + request.body)
         payload = request.json
-        # Вместо print используем логгер
-        app.logger.info("Получен payload: %s", payload)
+        app.logger.info("Получен payload: " + payload)
 
         bitrix_data = convert_payload_to_map(payload)
         ids = [
@@ -48,10 +60,17 @@ def webhook():
         save_word_document(doc, word_filename)
         pdf_filename = RESULT_FILENAME + '.pdf'
         convert_word_to_pdf(word_filename, pdf_filename)
-        send_equipments_to_bitrix(google_data['Используемое оборудование'])
+        response = send_equipments_to_bitrix(google_data['Используемое оборудование'])
         # send_documents_to_bitrix(word_filename, pdf_filename)
 
-        app.logger.info("Документы успешно отправлены в Bitrix", payload)
+        if response.status_code == 200:
+            app.logger.info("Документы успешно отправлены в Bitrix", payload)
+        else:
+            try:
+                result = response.json()
+                print("Ответ сервера:", json.dumps(result, indent=4, ensure_ascii=False))
+            except json.JSONDecodeError:
+                print("Ошибка декодирования JSON в ответе:", response.text)
 
         return jsonify({
             'status': 'success',
