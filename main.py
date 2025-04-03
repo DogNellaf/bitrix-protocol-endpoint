@@ -47,7 +47,7 @@ def webhook():
         app.logger.info("Headers: %s", request.headers)
         app.logger.info("Form data: %s", request.form)
         app.logger.info("Raw data: %s", request.data.decode('utf8'))
-        payload = request.json
+        payload = request.args
         app.logger.info("Получен payload: " + payload)
 
         bitrix_data = convert_payload_to_map(payload)
