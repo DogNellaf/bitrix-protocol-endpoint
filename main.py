@@ -47,6 +47,8 @@ def webhook():
         app.logger.info("Headers: %s", request.headers)
         app.logger.info("Form data: %s", request.form)
         app.logger.info("Raw data: %s", request.data.decode('utf8'))
+        test = list(request.args)
+        print(test)
         for key in request.args:
             payload = request.args.get(key)
             app.logger.info("Получен payload: " + payload)
